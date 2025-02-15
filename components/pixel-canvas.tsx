@@ -7,21 +7,21 @@ interface PixelCanvasProps {
   colors?: string[];
   gap?: number;
   speed?: number;
-  noFocus?: boolean;
   className?: string;
+  isActive?: boolean;
 }
 
 const PixelCanvas: React.FC<PixelCanvasProps> = ({
   colors = ['#f8fafc', '#f1f5f9', '#cbd5e1'],
-  gap = 5,
+  gap = 3,
   speed = 35,
-  noFocus = false,
-  className = ''
+  className = '',
+  isActive = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const pixelsRef = useRef<Pixel[]>([]);  // Aquí estaba el error, necesita valor inicial
-  const animationRef = useRef<number | undefined>(undefined);  // También especificamos undefined como valor inicial
+  const pixelsRef = useRef<Pixel[]>([]);
+  const animationRef = useRef<number | undefined>(undefined);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const getDistanceToCanvasCenter = (x: number, y: number): number => {
@@ -84,12 +84,16 @@ const PixelCanvas: React.FC<PixelCanvasProps> = ({
     animateFrame();
   };
 
-  const handleAnimation = (name: 'appear' | 'disappear') => {
+  const handleStateChange = () => {
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
-    animate(name);
+    animate(isActive ? 'appear' : 'disappear');
   };
+
+  useEffect(() => {
+    handleStateChange();
+  }, [isActive]);
 
   useEffect(() => {
     if (!containerRef.current || !canvasRef.current) return;
@@ -130,10 +134,6 @@ const PixelCanvas: React.FC<PixelCanvasProps> = ({
     <div
       ref={containerRef}
       className={`relative w-full h-full ${className}`}
-      onMouseEnter={() => handleAnimation('appear')}
-      onMouseLeave={() => handleAnimation('disappear')}
-      onFocus={() => !noFocus && handleAnimation('appear')}
-      onBlur={() => !noFocus && handleAnimation('disappear')}
     >
       <canvas
         ref={canvasRef}
