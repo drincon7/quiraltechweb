@@ -36,7 +36,7 @@ const Card = ({
   className = "",
   pixelCanvas = {
     enabled: true,
-    colors: ['#4f46e5', '#818cf8', '#6366f1'],
+    colors: ['#f0fdfa', '#ccfbf1', '#99f6e4'],
     gap: 8,
     speed: 35
   },
@@ -48,7 +48,7 @@ const Card = ({
   return (
     <a 
       href={href}
-      className={`group/card relative h-full overflow-hidden rounded-2xl bg-gray-800 p-px isolation-auto 
+      className={`group/card relative h-full overflow-hidden rounded-2xl bg-zinc-200 p-px isolation-auto 
         before:pointer-events-none before:absolute before:-left-40 before:-top-40 before:z-10 
         before:h-80 before:w-80 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] 
         before:rounded-full before:bg-indigo-500/80 before:opacity-0 before:blur-3xl 
@@ -61,7 +61,7 @@ const Card = ({
       data-spotlight-index={spotlightIndex}
       {...props}
     >              
-      <div className="relative z-20 h-full overflow-hidden rounded-[inherit] bg-gray-950">
+      <div className="relative z-20 h-full overflow-hidden rounded-[inherit] bg-zinc-50">
         {/* PixelCanvas Container */}
         {pixelCanvas.enabled && (
           <div className="absolute inset-0 z-10 w-full h-full">
@@ -92,7 +92,7 @@ const Card = ({
           {/* Image */}
           <div className="pointer-events-none">
             <Image
-              className="inline-flex mix-blend-overlay opacity-90 transition-opacity duration-300"
+              className="inline-flex mix-blend-overlay opacity-40 transition-opacity duration-300"
               src={image.src}
               width={image.width || 350}
               height={image.height || 288}
@@ -104,7 +104,7 @@ const Card = ({
           <div className="relative p-6">
             {badge && (
               <div className="mb-3">
-                <span className={`btn-sm relative rounded-full bg-gray-800/40 px-2.5 py-0.5 text-xs 
+                <span className={`btn-sm relative rounded-full bg-zinc-200/40 px-2.5 py-0.5 text-xs 
                   font-normal before:pointer-events-none before:absolute before:inset-0 
                   before:rounded-[inherit] before:border before:border-transparent 
                   before:[background:linear-gradient(to_bottom,theme(colors.gray.700/0.15),theme(colors.gray.700/0.5))_border-box] 
@@ -112,13 +112,13 @@ const Card = ({
                   before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] 
                   hover:bg-gray-800/60 ${badge.className || ''}`}
                 >
-                  <span className="bg-gradient-to-r from-indigo-500 to-indigo-200 bg-clip-text text-transparent">
+                  <span className="bg-blue-500 bg-clip-text text-transparent">
                     {badge.text}
                   </span>
                 </span>
               </div>
             )}
-            <p className="text-indigo-200/65">
+            <p className="text-blue-600/65">
               {description}
             </p>
           </div>
