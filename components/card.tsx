@@ -89,14 +89,15 @@ const Card = ({
             </svg>
           </div>
 
-          {/* Image */}
-          <div className="pointer-events-none">
+          {/* Image Container con dimensiones fijas */}
+          <div className="relative h-[400px] w-full overflow-hidden">
+            
             <Image
-              className="inline-flex mix-blend-overlay opacity-40 transition-opacity duration-300"
+              className="object-cover"
               src={image.src}
-              width={image.width || 350}
-              height={image.height || 288}
+              fill
               alt={image.alt}
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
 
@@ -104,13 +105,13 @@ const Card = ({
           <div className="relative p-6">
             {badge && (
               <div className="mb-3">
-                <span className={`btn-sm relative rounded-full bg-zinc-200/40 px-2.5 py-0.5 text-xs 
-                  font-normal before:pointer-events-none before:absolute before:inset-0 
+                <span className={`btn-sm relative rounded-full bg-zinc-200/40 px-2.5 py-0.5 text-s 
+                  font-bold before:pointer-events-none before:absolute before:inset-0 
                   before:rounded-[inherit] before:border before:border-transparent 
                   before:[background:linear-gradient(to_bottom,theme(colors.gray.700/0.15),theme(colors.gray.700/0.5))_border-box] 
                   before:[mask-composite:exclude_!important] 
                   before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] 
-                  hover:bg-gray-800/60 ${badge.className || ''}`}
+                  hover:bg-teal-200 ${badge.className || ''}`}
                 >
                   <span className="bg-blue-500 bg-clip-text text-transparent">
                     {badge.text}
