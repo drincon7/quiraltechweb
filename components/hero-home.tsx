@@ -5,21 +5,70 @@ import { Fade } from "react-awesome-reveal";
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+// Mantenemos las interfaces y posiciones existentes
+interface Position {
+  x: number;
+  y: number;
+  z: number;
+  rotationX: number;
+  rotationY: number;
+  rotationZ: number;
+  scale: number;
+}
+
+const easeInOutQuad = (t: number): number => {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+};
+
+// Mantenemos tus posiciones exactas
+const initialPosition: Position = {
+  x: 0,
+  y: -8,
+  z: 0,
+  rotationX: 0,
+  rotationY: Math.PI + 0.56,
+  rotationZ: 0,
+  scale: 0.1
+};
+
+const finalPosition: Position = {
+  x: 6,
+  y: -8,
+  z: 10,
+  rotationX: -.25,
+  rotationY: Math.PI * 2 + 0.54,
+  rotationZ: .132,
+  scale: 1,
+};
+
 export default function HeroHome() {
   const [scrollPosition, setScrollPosition] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const [isInView, setIsInView] = useState(true);
   const threeContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef(0);
+  const [modelVisible, setModelVisible] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
       if (sectionRef.current) {
         const rect = sectionRef.current.getBoundingClientRect();
-        const scrollProgress = -rect.top / (rect.height - window.innerHeight);
+        const viewportHeight = window.innerHeight;
+        const totalHeight = rect.height;
+        
+        // Detectamos cuando el siguiente componente está entrando en vista
+        const nextSection = sectionRef.current.nextElementSibling;
+        if (nextSection) {
+          const nextRect = nextSection.getBoundingClientRect();
+          const nextSectionEntering = nextRect.top <= viewportHeight;
+          setModelVisible(!nextSectionEntering);
+        }
+
+        // Actualizamos el progreso del scroll
+        const scrollProgress = -rect.top / (totalHeight - viewportHeight);
         setScrollPosition(scrollProgress);
         scrollRef.current = scrollProgress;
-        setIsInView(rect.top <= window.innerHeight && rect.bottom >= 0);
+        setIsInView(rect.top <= viewportHeight && rect.bottom >= 0);
       }
     };
 
@@ -40,34 +89,9 @@ export default function HeroHome() {
       0.1,
       1000
     );
-    // Aumentamos la distancia inicial de la cámara
-    // Parámetros de posición de cámara
-    const baseCameraZ = 10;      // Distancia en el eje Z (alejamiento)
-    const baseCameraY = 1;      // Altura de la cámara
-    const baseCameraX = 0;      // Posición lateral
-    const cameraRotationX =0;  // Rotación vertical (en radianes)
-    const cameraRotationY = 0;  // Rotación horizontal (en radianes)
-    const cameraRotationZ = 0;  // Inclinación lateral (en radianes)
 
-    // Parámetros de posición orbital
-    const orbitalRadius =0;     // Distancia desde el centro
-    const polarAngle = 0;   // Ángulo vertical desde arriba (theta)
-    const azimuthAngle = 10;  // Ángulo horizontal desde el frente (phi)
-    
-    // Calcula la posición de la cámara usando coordenadas esféricas
-    const x = orbitalRadius * Math.sin(polarAngle) * Math.cos(azimuthAngle);
-    const y = orbitalRadius * Math.cos(polarAngle);
-    const z = orbitalRadius * Math.sin(polarAngle) * Math.sin(azimuthAngle);
-    
-    // Aplica la posición orbital
-    camera.position.set(x, y, z);
-    // Hace que la cámara mire al centro
+    camera.position.set(5, 2, 8);
     camera.lookAt(0, 0, 0);
-    
-    // Si quieres usar la posición directa en lugar de la orbital, 
-    // comenta las dos líneas anteriores y descomenta estas:
-    // camera.position.set(baseCameraX, baseCameraY, baseCameraZ);
-    // camera.rotation.set(cameraRotationX, cameraRotationY, cameraRotationZ);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -81,11 +105,26 @@ export default function HeroHome() {
 
     let model: THREE.Group | null = null;
     const loader = new GLTFLoader();
+    
     loader.load(
       '/modelos/scene.gltf',
       (gltf) => {
         model = gltf.scene;
-        model.scale.set(0.5, 0.5, 0.5);
+        model.position.set(
+          initialPosition.x,
+          initialPosition.y,
+          initialPosition.z
+        );
+        model.rotation.set(
+          initialPosition.rotationX,
+          initialPosition.rotationY,
+          initialPosition.rotationZ
+        );
+        model.scale.set(
+          initialPosition.scale,
+          initialPosition.scale,
+          initialPosition.scale
+        );
         scene.add(model);
       },
       undefined,
@@ -94,24 +133,35 @@ export default function HeroHome() {
       }
     );
 
-    // Reducimos el factor de zoom para un movimiento más sutil
-    const zoomFactor = 2;
-
     let reqId: number;
     const animate = () => {
       reqId = requestAnimationFrame(animate);
 
-      // Actualizamos la posición Z de la cámara con un zoom más sutil
-      camera.position.z = baseCameraZ + scrollRef.current * zoomFactor;
-
-      // Si el modelo está cargado, su rotación dependerá del scroll
-      if (model) {
-        // Multiplicamos por 2π para conseguir una rotación completa
-        model.rotation.y = scrollRef.current * Math.PI * 2;
+      if (model && isInView) {
+        const progress = easeInOutQuad(Math.min(Math.max(scrollRef.current, 0), 1));
+        
+        // Interpolamos la posición
+        model.position.x = initialPosition.x + (finalPosition.x - initialPosition.x) * progress;
+        model.position.y = initialPosition.y + (finalPosition.y - initialPosition.y) * progress;
+        model.position.z = initialPosition.z + (finalPosition.z - initialPosition.z) * progress;
+        
+        // Interpolamos las rotaciones
+        model.rotation.x = initialPosition.rotationX + 
+          (finalPosition.rotationX - initialPosition.rotationX) * progress;
+        model.rotation.y = initialPosition.rotationY + 
+          (finalPosition.rotationY - initialPosition.rotationY) * progress;
+        model.rotation.z = initialPosition.rotationZ + 
+          (finalPosition.rotationZ - initialPosition.rotationZ) * progress;
+        
+        // Interpolamos la escala
+        const currentScale = initialPosition.scale + 
+          (finalPosition.scale - initialPosition.scale) * progress;
+        model.scale.set(currentScale, currentScale, currentScale);
       }
 
       renderer.render(scene, camera);
     };
+
     animate();
 
     const handleResize = () => {
@@ -121,6 +171,7 @@ export default function HeroHome() {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
+
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -133,24 +184,19 @@ export default function HeroHome() {
     };
   }, []);
 
-  const ratio = Math.min(Math.max(scrollPosition, 0), 1);
-  const r = Math.round(255 * (1 - ratio));
-  const g = Math.round(255 * (1 - ratio) + 170 * ratio);
-  const b = Math.round(255 * (1 - ratio) + 255 * ratio);
-  const textColor = `rgb(${r}, ${g}, ${b})`;
-
-  const fadeEndThreshold = 0.8;
-  const opacity =
-    scrollPosition >= fadeEndThreshold
-      ? Math.max(0, 1 - (scrollPosition - fadeEndThreshold) / (1 - fadeEndThreshold))
-      : 1;
-
   return (
     <section 
       ref={sectionRef} 
-      className="relative h-[300vh] overflow-hidden"
+      className="relative h-[200vh] overflow-hidden"
     >
-      <div className="fixed inset-0 w-full h-screen overflow-hidden">
+      <div 
+        className="fixed inset-0 w-full h-screen overflow-hidden"
+        style={{ 
+          opacity: modelVisible ? 1 : 0,
+          transition: 'opacity 0.5s ease-out',
+          pointerEvents: modelVisible ? 'auto' : 'none'
+        }}
+      >
         <div className="absolute inset-0 flex items-center justify-center">
           <div 
             ref={threeContainerRef}
@@ -161,19 +207,18 @@ export default function HeroHome() {
           />
         </div>
         <div 
-          className="absolute inset-0 bg-black"
-          style={{ opacity: 0.4 + ratio * 0.2 }}
-        />
-        <div 
           className="relative pt-32 text-center"
-          style={{ opacity }}
+          style={{ 
+            opacity: modelVisible ? 1 : 0,
+            transition: 'opacity 0.5s ease-out'
+          }}
         >
           <Fade triggerOnce>
-            <h1 className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right, var(--color-gray-200), var(--color-indigo-200), var(--color-gray-50), var(--color-indigo-300), var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text pb-5 font-nacelle text-4xl font-semibold text-transparent md:text-5xl">
+            <h1 className="animate-[gradient_6s_linear_infinite] bg-gradient-to-r from-blue-500 via-teal-500 to-blue-500 bg-[length:200%_auto] bg-clip-text pb-4 font-nacelle text-3xl font-semibold text-transparent md:text-5xl">
               Tecnología con propósito
             </h1>
             <div className="mx-auto max-w-3xl">
-              <p className="mb-8 text-xl text-white opacity-85">
+              <p className="text-lg text-blue-400">
                 Transforma tus desafíos en soluciones digitales innovadoras
               </p>
             </div>
@@ -185,8 +230,8 @@ export default function HeroHome() {
         <div 
           className="fixed left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center"
           style={{ 
-            opacity,
-            transition: 'all 0.3s ease',
+            opacity: modelVisible ? 1 : 0,
+            transition: 'all 0.5s ease-out',
             zIndex: 10
           }}
         >
