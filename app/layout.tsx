@@ -51,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${nacelle.variable} bg-zinc-100 font-inter text-base text-blue-500 antialiased`}
+        className={`${inter.variable} ${nacelle.variable} bg-gray-200 font-inter text-base text-blue-500 antialiased`}
       >
         <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
           <Header />
