@@ -187,7 +187,7 @@ export default function HeroHome() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative h-[200vh] overflow-hidden"
+      className="relative h-[400vh] overflow-hidden"
     >
       <div 
         className="fixed inset-0 w-full h-screen overflow-hidden"
