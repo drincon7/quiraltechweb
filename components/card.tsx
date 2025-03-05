@@ -1,18 +1,18 @@
 "use client"
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import PixelCanvas from './pixel-canvas';
 
 interface CardProps {
   href?: string;
-  image: {
-    src: string | any;
+  image?: {
+    src?: string | any;
     width?: number;
     height?: number;
-    alt: string;
+    alt?: string;
   };
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   className?: string;
   pixelCanvas?: {
     enabled?: boolean;
@@ -30,9 +30,9 @@ interface CardProps {
 
 const Card = ({ 
   href = "#0",
-  image,
-  title,
-  description,
+  image = undefined,
+  title = "",
+  description = "",
   className = "",
   pixelCanvas = {
     enabled: true,
@@ -40,28 +40,89 @@ const Card = ({
     gap: 8,
     speed: 35
   },
-  badge,
+  badge = undefined,
   'data-spotlight-index': spotlightIndex,
-  'data-spotlight-active': isActive,
+  'data-spotlight-active': isActive = false,
   ...props
 }: CardProps) => {
+  const cardRef = useRef<HTMLAnchorElement>(null);
+
+  // Función para manejar el efecto glow con el movimiento del mouse
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      
+      // Calcular posición relativa normalizada (0-1)
+      const normalizedX = (e.clientX - rect.left) / rect.width;
+      const normalizedY = (e.clientY - rect.top) / rect.height;
+      
+      // Convertir a porcentajes para CSS
+      const percentX = normalizedX * 100;
+      const percentY = normalizedY * 100;
+      
+      card.style.setProperty('--mouse-x-percent', `${percentX}%`);
+      card.style.setProperty('--mouse-y-percent', `${percentY}%`);
+    };
+
+    card.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      card.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   return (
     <a 
+      ref={cardRef}
       href={href}
-      className={`group/card relative h-full overflow-hidden rounded-2xl bg-zinc-200 p-px isolation-auto 
-        before:pointer-events-none before:absolute before:-left-40 before:-top-40 before:z-10 
-        before:h-80 before:w-80 before:translate-x-[var(--mouse-x)] before:translate-y-[var(--mouse-y)] 
-        before:rounded-full before:bg-indigo-500/80 before:opacity-0 before:blur-3xl 
-        before:transition-opacity before:duration-500 
-        after:pointer-events-none after:absolute after:-left-48 after:-top-48 after:z-30 
-        after:h-64 after:w-64 after:translate-x-[var(--mouse-x)] after:translate-y-[var(--mouse-y)] 
-        after:rounded-full after:bg-indigo-500 after:opacity-0 after:blur-3xl 
-        after:transition-opacity after:duration-500 hover:after:opacity-20 
-        group-hover:before:opacity-100 ${className}`}
+      className={`
+        group/card 
+        relative 
+        block
+        h-[500px] 
+        w-full
+        overflow-hidden 
+        rounded-2xl 
+        bg-transparent
+        border border-teal-500/30
+        p-px 
+        isolation-auto
+        ${className}
+      `}
+      style={{
+        // Estilos personalizados para el glow usando CSS nativo
+        '--card-glow-blur': '25px',
+        '--card-glow-spread': '10px',
+        '--card-glow-color': 'rgba(20, 184, 166, 0.8)' // Color teal para combinar con el diseño
+      } as React.CSSProperties}
       data-spotlight-index={spotlightIndex}
       {...props}
-    >              
-      <div className="relative z-20 h-full overflow-hidden rounded-[inherit] bg-zinc-50">
+    >
+      {/* Pseudo-elementos controlados con clases para consistencia */}
+      <div 
+        className="
+          absolute 
+          top-0 
+          left-0 
+          w-full 
+          h-full 
+          opacity-0 
+          group-hover/card:opacity-100 
+          transition-opacity 
+          duration-500 
+          pointer-events-none
+          z-10
+        "
+        style={{
+          background: 'radial-gradient(circle 150px at var(--mouse-x-percent, 50%) var(--mouse-y-percent, 50%), rgba(20, 184, 166, 0.6), transparent)',
+          filter: 'blur(25px)'
+        }}
+      />
+              
+      <div className="relative z-20 h-full overflow-hidden rounded-[inherit] bg-transparent flex flex-col">
         {/* PixelCanvas Container */}
         {pixelCanvas.enabled && (
           <div className="absolute inset-0 z-10 w-full h-full">
@@ -76,52 +137,61 @@ const Card = ({
         )}
 
         {/* Content Layer */}
-        <div className="relative z-20">
+        <div className="relative z-20 flex flex-col h-full">
           {/* Arrow */}
           <div
             className="absolute right-6 top-6 flex h-8 w-8 items-center justify-center rounded-full 
-              border border-gray-700/50 bg-gray-800/65 text-gray-200 opacity-0 
+              border border-teal-500/50 bg-black/65 text-teal-200 opacity-0 
               transition-opacity group-hover/card:opacity-100"
             aria-hidden="true"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width={9} height={8} fill="none">
-              <path fill="#F4F4F5" d="m4.92 8-.787-.763 2.733-2.68H0V3.443h6.866L4.133.767 4.92 0 9 4 4.92 8Z" />
+              <path fill="#14B8A6" d="m4.92 8-.787-.763 2.733-2.68H0V3.443h6.866L4.133.767 4.92 0 9 4 4.92 8Z" />
             </svg>
           </div>
 
-          {/* Image Container con dimensiones fijas */}
-          <div className="relative h-[400px] w-full overflow-hidden">
-            
-            <Image
-              className="object-cover"
-              src={image.src}
-              fill
-              alt={image.alt}
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
+          {/* Image Container con altura proporcional */}
+          {image && image.src ? (
+            <div className="relative w-full h-[60%] overflow-hidden">
+              <Image
+                className="object-cover"
+                src={image.src}
+                fill
+                alt={image.alt || "Card image"}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+          ) : (
+            <div className="relative w-full h-[60%] bg-gray-900/30 flex items-center justify-center">
+              <div className="text-teal-400">Sin imagen</div>
+            </div>
+          )}
 
-          {/* Content */}
-          <div className="relative p-6">
+          {/* Content - flexibilidad para ocupar espacio restante */}
+          <div className="relative p-6 flex flex-col flex-grow bg-black/40 backdrop-blur-sm">
+            {title && <h3 className="text-xl font-bold mb-2 text-blue-400">{title}</h3>}
+            
             {badge && (
               <div className="mb-3">
-                <span className={`btn-sm relative rounded-full bg-zinc-200/40 px-2.5 py-0.5 text-s 
+                <span className={`btn-sm relative rounded-full bg-black/40 px-2.5 py-0.5 text-s 
                   font-bold before:pointer-events-none before:absolute before:inset-0 
-                  before:rounded-[inherit] before:border before:border-transparent 
-                  before:[background:linear-gradient(to_bottom,theme(colors.gray.700/0.15),theme(colors.gray.700/0.5))_border-box] 
+                  before:rounded-[inherit] before:border before:border-teal-500/50
+                  before:[background:linear-gradient(to_bottom,theme(colors.teal.700/0.15),theme(colors.teal.700/0.5))_border-box] 
                   before:[mask-composite:exclude_!important] 
                   before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] 
-                  hover:bg-teal-200 ${badge.className || ''}`}
+                  hover:bg-teal-900/50 ${badge.className || ''}`}
                 >
-                  <span className="bg-blue-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
                     {badge.text}
                   </span>
                 </span>
               </div>
             )}
-            <p className="text-blue-600/65">
-              {description}
-            </p>
+            {description && (
+              <p className="text-white text-sm">
+                {description}
+              </p>
+            )}
           </div>
         </div>
       </div>
