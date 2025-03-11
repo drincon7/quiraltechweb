@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Fade } from "react-awesome-reveal";
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import RotatingText from './ui/RotatingText/RotatingText';
 
 // Mantenemos las interfaces y posiciones existentes
 interface Position {
@@ -48,6 +49,14 @@ export default function HeroHome() {
   const threeContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef(0);
   const [modelVisible, setModelVisible] = useState(true);
+  
+  // Array de palabras para la rotación (solo la última palabra)
+  const rotatingTexts = [
+    "propósito",
+    "innovación",
+    "futuro",
+    "evolución"
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -214,11 +223,25 @@ export default function HeroHome() {
           }}
         >
           <Fade triggerOnce>
-            <h1 className="animate-[gradient_6s_linear_infinite] bg-gradient-to-r from-blue-500 via-teal-500 to-blue-500 bg-[length:200%_auto] bg-clip-text pb-4 font-nacelle text-3xl font-semibold text-transparent md:text-5xl">
-              Tecnología con propósito
+            <h1 className="flex justify-center items-center pb-4 font-nacelle text-3xl font-semibold md:text-5xl">
+              <span className="text-black transition-all duration-700 ease-in-out mr-2">Tecnología con</span>
+              <div className="inline-block" style={{ minWidth: "180px" }}> {/* Contenedor con ancho mínimo fijo */}
+                <RotatingText 
+                  texts={rotatingTexts}
+                  mainClassName="px-2 md:px-3 bg-blue-300 text-black overflow-hidden py-0.5 md:py-2 justify-center rounded-lg"
+                  staggerFrom="last"
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "-120%" }}
+                  staggerDuration={0.025}
+                  splitLevelClassName="overflow-hidden pb-0.5 md:pb-1"
+                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                  rotationInterval={2000}
+                />
+              </div>
             </h1>
             <div className="mx-auto max-w-3xl">
-              <p className="text-lg text-blue-400">
+              <p className="text-lg text-black">
                 Transforma tus desafíos en soluciones digitales innovadoras
               </p>
             </div>
