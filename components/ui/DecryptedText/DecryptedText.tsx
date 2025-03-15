@@ -40,7 +40,8 @@ export default function DecryptedText({
   const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    let interval: number;
+    // Cambiado el tipo de interval para ser compatible con NodeJS.Timeout y number
+    let interval: NodeJS.Timeout | undefined;
     let currentIteration = 0;
 
     const getNextIndex = (revealedSet: Set<number>): number => {
