@@ -1,55 +1,106 @@
+'use client'
+
 import Image from "next/image";
-import BlurredShape from "@/public/images/blurred-shape.svg";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export default function Cta() {
+  // References for scroll animation detection
+  const sectionRef = useRef(null);
+  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
+  
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        duration: 0.6,
+        staggerChildren: 0.2
+      }
+    }
+  };
+  
+  const logoVariants = {
+    hidden: { opacity: 0, x: -30 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.7, ease: "easeOut" }
+    }
+  };
+  
+  const textVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.7, ease: "easeOut" }
+    }
+  };
+  
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: { 
+        duration: 0.5, 
+        delay: 0.3,
+        ease: "easeOut" 
+      }
+    }
+  };
+
   return (
-    <section className="relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/2 -z-10 -mb-24 ml-20 -translate-x-1/2"
-        aria-hidden="true"
-      >
-        <Image
-          className="max-w-none"
-          src={BlurredShape}
-          width={760}
-          height={668}
-          alt="Blurred shape"
-        />
-      </div>
-      <div className="max-w6xl mx-auto px-4 sm:px-6">
-        <div className="bg-linear-to-r from-transparent via-gray-800/50 py-12 md:py-20">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2
-              className="animate-[gradient_6s_linear_infinite] bg-[linear-gradient(to_right,var(--color-gray-200),var(--color-indigo-200),var(--color-gray-50),var(--color-indigo-300),var(--color-gray-200))] bg-[length:200%_auto] bg-clip-text pb-8 font-nacelle text-3xl font-semibold text-transparent md:text-4xl"
-              data-aos="fade-up"
-            >
-              Join the content-first platform
-            </h2>
-            <div className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center">
-              <div data-aos="fade-up" data-aos-delay={400}>
-                <a
-                  className="btn group mb-4 w-full bg-linear-to-t from-indigo-600 to-indigo-500 bg-[length:100%_100%] bg-[bottom] text-white shadow-[inset_0px_1px_0px_0px_--theme(--color-white/.16)] hover:bg-[length:100%_150%] sm:mb-0 sm:w-auto"
-                  href="#0"
-                >
-                  <span className="relative inline-flex items-center">
-                    Start Building
-                    <span className="ml-1 tracking-normal text-white/50 transition-transform group-hover:translate-x-0.5">
-                      -&gt;
-                    </span>
-                  </span>
-                </a>
-              </div>
-              <div data-aos="fade-up" data-aos-delay={600}>
-                <a
-                  className="btn relative w-full bg-linear-to-b from-gray-800 to-gray-800/60 bg-[length:100%_100%] bg-[bottom] text-gray-300 before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(to_right,var(--color-gray-800),var(--color-gray-700),var(--color-gray-800))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)] hover:bg-[length:100%_150%] sm:ml-4 sm:w-auto"
-                  href="#0"
-                >
-                  Schedule Demo
-                </a>
-              </div>
+    <section 
+      ref={sectionRef}
+      className="relative bg-black text-white py-16"
+    >
+      <div className="max-w-6xl mx-auto">
+        <motion.div
+          className="grid grid-cols-4 items-center border border-gray-800 rounded-lg overflow-hidden"
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+        >
+          {/* Logo section - smaller, square */}
+          <motion.div 
+            className="col-span-1 flex items-center justify-center p-8 border-r border-gray-800 h-full"
+            variants={logoVariants}
+          >
+            <div className="w-36 h-36 flex items-center justify-center">
+              <Image
+                src="/images/isologo.svg"
+                width={100}
+                height={100}
+                alt="IsoLogo"
+                className="max-w-full"
+              />
             </div>
+          </motion.div>
+          
+          {/* Text and button section - larger, rectangular */}
+          <div className="col-span-3 flex flex-col items-center justify-center p-8">
+            <motion.h2 
+              className="font-nacelle text-4xl font-semibold mb-6 bg-gradient-to-t from-gray-400 to-white bg-clip-text text-transparent"
+              variants={textVariants}
+            >
+              Listo para empezar?
+            </motion.h2>
+            
+            <motion.a
+              className="inline-flex items-center px-8 py-3 bg-white text-black rounded-full hover:bg-gray-100 transition-colors"
+              href="#0"
+              variants={buttonVariants}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>Conversemos!</span>
+            </motion.a>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
