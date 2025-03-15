@@ -8,4 +8,9 @@
     padding: 8px 16px !important; /* Reduce el padding vertical para hacer más delgado */
     background: linear-gradient(to bottom, #060606, #111) !important;
     border: 1px solid #222 !important;
+    height: 100% !important; /* Asegura que el contenido tenga altura completa */
+    box-sizing: border-box !important; /* Asegura que el padding no afecte la altura */
+
   }
+
+  
