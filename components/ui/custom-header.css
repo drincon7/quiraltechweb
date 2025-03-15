@@ -1,0 +1,11 @@
+/* Sobreescribe los estilos para el header */
+.header-star-border {
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  .header-star-border .inner-content {
+    padding: 8px 16px !important; /* Reduce el padding vertical para hacer más delgado */
+    background: linear-gradient(to bottom, #060606, #111) !important;
+    border: 1px solid #222 !important;
+  }

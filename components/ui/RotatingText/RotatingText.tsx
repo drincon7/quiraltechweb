@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
   useMemo,
   useState,
+  useRef
 } from "react";
 import {
   motion,
@@ -49,6 +50,10 @@ export interface RotatingTextProps
   mainClassName?: string;
   splitLevelClassName?: string;
   elementLevelClassName?: string;
+  // Nueva propiedad para el modo de tamaño
+  sizeMode?: "adaptive" | "fixed" | "preCalculate";
+  // Factor para el padding horizontal (como multiplicador del tamaño del texto)
+  paddingFactor?: number;
 }
 
 const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
@@ -71,18 +76,42 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       mainClassName,
       splitLevelClassName,
       elementLevelClassName,
+      sizeMode = "preCalculate", // Por defecto, pre-calcula tamaño
+      paddingFactor = 1.2, // Agregar 20% de padding extra
       ...rest
     },
-    ref,
+    ref
   ) => {
     const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
+    const containerRef = useRef<HTMLSpanElement>(null);
+
+    // Función para calcular el ancho de un texto
+    const calculateTextWidth = useCallback((text: string) => {
+      // Aumentamos el ancho por caracter y el padding para garantizar espacio suficiente
+      const charWidth = 20; // Ancho generoso por caracter
+      const minPadding = 120; // Padding mínimo (60px por lado)
+      
+      // Calculamos el ancho base
+      const baseWidth = text.length * charWidth;
+      
+      // Añadimos padding extra proporcional al tamaño del texto
+      const dynamicPadding = Math.max(minPadding, baseWidth * 0.3); // Al menos 30% extra
+      
+      return baseWidth + dynamicPadding;
+    }, []);
+
+    // Obtener el ancho para el texto actual
+    const currentTextWidth = useMemo(() => {
+      if (sizeMode !== "preCalculate") return null;
+      return calculateTextWidth(texts[currentTextIndex]);
+    }, [sizeMode, calculateTextWidth, texts, currentTextIndex]);
 
     const splitIntoCharacters = (text: string): string[] => {
       if (typeof Intl !== "undefined" && Intl.Segmenter) {
         const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
         return Array.from(
           segmenter.segment(text),
-          (segment) => segment.segment,
+          (segment) => segment.segment
         );
       }
       return Array.from(text);
@@ -132,7 +161,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         }
         return Math.abs((staggerFrom as number) - index) * staggerDuration;
       },
-      [staggerFrom, staggerDuration],
+      [staggerFrom, staggerDuration]
     );
 
     const handleIndexChange = useCallback(
@@ -140,7 +169,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         setCurrentTextIndex(newIndex);
         if (onNext) onNext(newIndex);
       },
-      [onNext],
+      [onNext]
     );
 
     const next = useCallback(() => {
@@ -174,7 +203,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
           handleIndexChange(validIndex);
         }
       },
-      [texts.length, currentTextIndex, handleIndexChange],
+      [texts.length, currentTextIndex, handleIndexChange]
     );
 
     const reset = useCallback(() => {
@@ -191,7 +220,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         jumpTo,
         reset,
       }),
-      [next, previous, jumpTo, reset],
+      [next, previous, jumpTo, reset]
     );
 
     useEffect(() => {
@@ -200,15 +229,29 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       return () => clearInterval(intervalId);
     }, [next, rotationInterval, auto]);
 
+    // Transición personalizada para el layout
+    const layoutTransition = {
+      ...transition,
+      type: "spring",
+      bounce: 0.1,
+      stiffness: 80,
+      damping: 15
+    };
+
     return (
       <motion.span
+        ref={containerRef}
         className={cn(
           "flex flex-wrap whitespace-pre-wrap relative",
-          mainClassName,
+          mainClassName
         )}
         {...rest}
         layout
-        transition={transition}
+        transition={layoutTransition}
+        style={{
+          ...(rest.style || {}),
+          ...(currentTextWidth ? { width: currentTextWidth, minWidth: 'auto' } : {})
+        }}
       >
         <span className="sr-only">{texts[currentTextIndex]}</span>
         <AnimatePresence
@@ -220,7 +263,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
             className={cn(
               splitBy === "lines"
                 ? "flex flex-col w-full"
-                : "flex flex-wrap whitespace-pre-wrap relative",
+                : "flex flex-wrap whitespace-pre-wrap relative"
             )}
             layout
             aria-hidden="true"
@@ -246,8 +289,8 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
                           previousCharsCount + charIndex,
                           array.reduce(
                             (sum, word) => sum + word.characters.length,
-                            0,
-                          ),
+                            0
+                          )
                         ),
                       }}
                       className={cn("inline-block", elementLevelClassName)}
@@ -265,7 +308,7 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         </AnimatePresence>
       </motion.span>
     );
-  },
+  }
 );
 
 RotatingText.displayName = "RotatingText";
