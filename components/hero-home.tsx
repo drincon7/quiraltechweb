@@ -49,13 +49,22 @@ export default function HeroHome() {
       <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateY(-5%)' }}>
         <div className="text-center z-10" style={{ position: 'absolute' }}>
           <h1 className="flex flex-col justify-center items-center font-nacelle text-4xl font-semibold text-[4rem]">
-            <SplitText 
-              text="Tecnología con"
-              className="text-white mb-4"
-              delay={50} // Animación más rápida
-              animationFrom={{ opacity: 0, transform: "translate3d(0,20px,0)" }}
-              animationTo={{ opacity: 1, transform: "translate3d(0,0,0)" }}
-            />
+            <div className="flex flex-col">
+              <SplitText 
+                text="Hacemos"
+                className="text-white"
+                delay={50} // Animación más rápida
+                animationFrom={{ opacity: 0, transform: "translate3d(0,20px,0)" }}
+                animationTo={{ opacity: 1, transform: "translate3d(0,0,0)" }}
+              />
+              <SplitText 
+                text="Tecnología con"
+                className="text-white mb-4"
+                delay={50} // Animación más rápida
+                animationFrom={{ opacity: 0, transform: "translate3d(0,20px,0)" }}
+                animationTo={{ opacity: 1, transform: "translate3d(0,0,0)" }}
+              />
+            </div>
             <motion.div 
               className="inline-flex justify-center overflow-visible"
               layout="size"
