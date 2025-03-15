@@ -388,31 +388,7 @@ const Workflows = () => {
                 ease: [0.22, 1, 0.36, 1] 
               }}
             >
-              <motion.button 
-                className="btn-sm relative inline-flex items-center rounded-lg border border-teal-500/50 bg-black px-4 py-2 text-sm font-medium text-teal-200 hover:bg-teal-900/20 transition-colors duration-300"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Consultar ahora
-                <motion.svg 
-                  className="ml-2 h-4 w-4" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24" 
-                  xmlns="http://www.w3.org/2000/svg"
-                  initial={{ x: 0 }}
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{ 
-                    duration: 1.5, 
-                    repeat: Infinity, 
-                    repeatType: "loop",
-                    ease: "easeInOut",
-                    repeatDelay: 1
-                  }}
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </motion.svg>
-              </motion.button>
+
             </motion.div>
           </div>
           
