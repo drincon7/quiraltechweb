@@ -27,15 +27,15 @@ export default function Home() {
           <Hero />
         </section>
         
-        <section>
+        <section id="servicios">
           <Workflows />
         </section>
         
-        <section>
+        <section id="diferenciadores">
           <Features />
         </section>
         
-        <section>
+        <section id="testimonios">
           <Testimonials />
         </section>
       </BlurWrapper>
