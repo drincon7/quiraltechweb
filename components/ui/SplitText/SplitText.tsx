@@ -1,5 +1,11 @@
-import { useSprings, animated, SpringConfig } from "@react-spring/web";
+import { useSprings, SpringConfig } from "@react-spring/web";
+import { animated } from "@react-spring/web";
 import { useEffect, useRef, useState } from "react";
+
+// Definiendo explícitamente los componentes animados para evitar problemas de tipo
+const AnimatedSpan = animated('span') as React.FC<React.HTMLAttributes<HTMLSpanElement> & {
+  style?: React.CSSProperties;
+}>;
 
 interface SplitTextProps {
   text?: string;
@@ -90,13 +96,13 @@ const SplitText: React.FC<SplitTextProps> = ({
               letterIndex;
 
             return (
-              <animated.span
+              <AnimatedSpan
                 key={index}
                 style={springs[index] as unknown as React.CSSProperties}
                 className="inline-block transform transition-opacity will-change-transform"
               >
                 {letter}
-              </animated.span>
+              </AnimatedSpan>
             );
           })}
           <span style={{ display: "inline-block", width: "0.3em" }}>
