@@ -38,7 +38,7 @@ export default function Header() {
   return (
     <motion.header 
       ref={headerRef}
-      className="sticky top-2 z-30 w-full"
+      className="sticky top-2 z-50 w-full"
       initial={false}
       variants={{
         visible: { opacity: 1, y: 0 },
@@ -46,7 +46,7 @@ export default function Header() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      style={{ height: '60px' }}  // Forzar altura fija directamente en el elemento
+      style={{ height: '60px', zIndex: 9999 }}  // Forzar altura fija y z-index máximo directamente
     >
       <div className="mx-auto w-[95%] px-4">
         <StarBorder 

@@ -21,7 +21,7 @@ export default function Home() {
       <BlurWrapper 
         blurHeight={350} 
         blurStrength={50}
-        sectionPairs={[[0, 1], [3, 2]]}  // Asegúrate de incluir la transición entre Workflows y Features
+        sectionPairs={[[0, 1], [3, 2],[7, 6]]}  // Asegúrate de incluir la transición entre Workflows y Features
       >
         <section>
           <Hero />

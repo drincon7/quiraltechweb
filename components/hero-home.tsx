@@ -25,8 +25,8 @@ export default function HeroHome() {
       ref={sectionRef} 
       className="relative h-screen w-full overflow-hidden"
     >
-      {/* Orb container - Making it larger */}
-      <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateY(-5%)' }}>
+      {/* Orb container - Making it larger and adding high z-index */}
+      <div className="absolute inset-0 flex items-center justify-center z-30" style={{ transform: 'translateY(-5%)' }}>
         <motion.div 
           style={{ width: '120%', height: '900px', position: 'relative' }}
           initial={{ opacity: 0, scale: 0.8 }}
@@ -45,9 +45,9 @@ export default function HeroHome() {
         </motion.div>
       </div>
       
-      {/* Text overlay centered within the Orb */}
-      <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateY(-5%)' }}>
-        <div className="text-center z-10" style={{ position: 'absolute' }}>
+      {/* Text overlay centered within the Orb with very high z-index */}
+      <div className="absolute inset-0 flex items-center justify-center z-40" style={{ transform: 'translateY(-5%)' }}>
+        <div className="text-center" style={{ position: 'absolute' }}>
           <h1 className="flex flex-col justify-center items-center font-nacelle text-4xl font-semibold text-[4rem]">
             <div className="flex flex-col">
               <SplitText 

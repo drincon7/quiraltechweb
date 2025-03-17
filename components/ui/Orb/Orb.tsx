@@ -23,7 +23,7 @@ export default function Orb({
     varying vec2 vUv;
     void main() {
       vUv = uv;
-      gl_Position = vec4(position, 0.0, 1.0);
+      gl_Position = vec4(position, 0.0, 1);
     }
   `;
 
@@ -309,7 +309,12 @@ export default function Orb({
     const renderer = new Renderer({ alpha: true, premultipliedAlpha: false });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
-    container.appendChild(gl.canvas);
+    
+    // Just make sure the canvas has overflow visible
+    const canvas = gl.canvas;
+    canvas.style.overflow = 'visible';
+    
+    container.appendChild(canvas);
 
     const geometry = new Triangle(gl);
     const program = new Program(gl, {
@@ -335,12 +340,16 @@ export default function Orb({
 
     function resize() {
       if (!container) return;
+      
       const dpr = window.devicePixelRatio || 1;
       const width = container.clientWidth;
       const height = container.clientHeight;
+      
       renderer.setSize(width * dpr, height * dpr);
+      
       gl.canvas.style.width = width + "px";
       gl.canvas.style.height = height + "px";
+      
       program.uniforms.iResolution.value.set(
         gl.canvas.width,
         gl.canvas.height,
@@ -413,5 +422,6 @@ export default function Orb({
     };
   }, [hue, hoverIntensity, rotateOnHover, forceHoverState]);
 
-  return <div ref={ctnDom} className="w-full h-full" />;
+  // Apply overflow: visible to the container div
+  return <div ref={ctnDom} className="w-full h-full" style={{ overflow: 'visible' }} />;
 }

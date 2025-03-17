@@ -1,20 +1,25 @@
 'use client'
 
 import { useRef, useEffect } from 'react';
+import SplashCursor from '../components/ui/SplashCursor/SplashCursor';
+import Link from 'next/link';
 
 export default function Features() {
   return (
     <section className="relative">
+      {/* SplashCursor component */}
+      <SplashCursor />
+      
       {/* Parte superior con degradado de azul oscuro a azul claro y finalmente blanco */}
-      <div className="bg-gradient-to-b from-blue-900 via-blue-600 to-white h-36"></div>
+      <div className="bg-gradient-to-b from-blue-900 via-blue-600 to-white h-32"></div>
       
       {/* Contenido principal con fondo blanco */}
       <div className="bg-white relative">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="pt-24 md:pt-32 pb-16 md:pb-20">
+          <div className="pt-16 md:pt-24 pb-16 md:pb-20">
             
             {/* Header - Estilo similar a la segunda imagen */}
-            <div className="mb-16 mt-10 px-1">
+            <div className="mb-16 mt-6 px-1">
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-700 to-indigo-800 bg-clip-text text-transparent px-0.5 pb-2 inline-block leading-relaxed">
                 Tecnología que Impulsa tu Éxito
               </h2>
@@ -45,9 +50,12 @@ export default function Features() {
                 {/* Degradado sutil al fondo */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-800/10 to-indigo-900/20"></div>
                 <div className="flex justify-end z-10">
-                  <button className="bg-white text-blue-900 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors">
+                  <Link 
+                    href="/contacto" 
+                    className="bg-white text-blue-900 px-8 py-3 rounded-full font-medium hover:bg-gray-100 transition-colors inline-block"
+                  >
                     CONTACTAR
-                  </button>
+                  </Link>
                 </div>
               </div>
               
