@@ -157,7 +157,9 @@ export default function Spotlight({
       document.head.appendChild(style);
       
       return () => {
+        if (style && style.parentNode === document.head) {
         document.head.removeChild(style);
+        }
       };
     }
   }, [mode, colorScheme, borderWidth]);

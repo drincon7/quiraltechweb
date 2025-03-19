@@ -1566,6 +1566,10 @@ export default function SplashCursor({
       document.removeEventListener("touchstart", handleTouchStart as EventListener);
       document.removeEventListener("touchmove", handleTouchMove as EventListener);
       document.removeEventListener("touchend", handleTouchEnd as EventListener);
+
+      if (gl) {
+        cancelAnimationFrame
+      }
     };
   }, [
     SIM_RESOLUTION,

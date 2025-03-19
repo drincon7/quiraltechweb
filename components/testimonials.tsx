@@ -238,7 +238,9 @@ function SpotlightGrid({ children }: { children: ReactNode }) {
     document.head.appendChild(style);
     
     return () => {
+      if (style && style.parentNode === document.head) {
       document.head.removeChild(style);
+      }
     };
   }, []);
 

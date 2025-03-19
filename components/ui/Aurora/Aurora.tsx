@@ -126,9 +126,15 @@ export default function Aurora(props: AuroraProps) {
 
   const ctnDom = useRef<HTMLDivElement>(null);
 
+  const isMounted = useRef<boolean>(true);
+  // Referencia para el canvas
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   useEffect(() => {
     const ctn = ctnDom.current;
     if (!ctn) return;
+
+    isMounted.current = true;
 
     const renderer = new Renderer({
       alpha: true,
@@ -136,6 +142,9 @@ export default function Aurora(props: AuroraProps) {
       antialias: true,
     });
     const gl = renderer.gl;
+
+    canvasRef.current = gl.canvas;
+
     gl.clearColor(0, 0, 0, 0);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
@@ -182,6 +191,7 @@ export default function Aurora(props: AuroraProps) {
 
     let animateId = 0;
     const update = (t: number) => {
+      if (!isMounted.current) return;
       animateId = requestAnimationFrame(update);
       const { time = t * 0.01, speed = 1.0 } = propsRef.current;
       if (program) {
@@ -193,7 +203,10 @@ export default function Aurora(props: AuroraProps) {
           const c = new Color(hex);
           return [c.r, c.g, c.b];
         });
+
+        if (isMounted.current){
         renderer.render({ scene: mesh });
+        }
       }
     };
     animateId = requestAnimationFrame(update);
@@ -201,12 +214,37 @@ export default function Aurora(props: AuroraProps) {
     resize();
 
     return () => {
-      cancelAnimationFrame(animateId);
-      window.removeEventListener("resize", resize);
-      if (ctn && gl.canvas.parentNode === ctn) {
-        ctn.removeChild(gl.canvas);
+      // Marcar como desmontado primero
+      isMounted.current = false;
+      
+      // Cancelar animación
+      if (animateId) {
+        cancelAnimationFrame(animateId);
       }
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      
+      // Remover event listeners
+      window.removeEventListener("resize", resize);
+      
+      // Verificación segura de canvas
+      const canvas = canvasRef.current;
+      if (ctn && canvas && canvas.parentNode === ctn) {
+        try {
+          ctn.removeChild(canvas);
+        } catch (e) {
+          console.warn('Error removing canvas from container:', e);
+        }
+      }
+      
+      // Limpiar contexto WebGL
+      if (gl) {
+        const lostContextExt = gl.getExtension("WEBGL_lose_context");
+        if (lostContextExt) {
+          lostContextExt.loseContext();
+        }
+      }
+      
+      // Limpiar referencias
+      canvasRef.current = null;
     };
   }, [amplitude]);
 

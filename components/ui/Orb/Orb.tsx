@@ -413,12 +413,28 @@ export default function Orb({
     rafId = requestAnimationFrame(update);
 
     return () => {
+      // Primero cancelar las animaciones
       cancelAnimationFrame(rafId);
+      
+      // Eliminar event listeners
       window.removeEventListener("resize", resize);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mouseleave", handleMouseLeave);
-      container.removeChild(gl.canvas);
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      
+      // Verificar si el canvas todavía es hijo del contenedor
+      if (gl && gl.canvas && gl.canvas.parentNode === container) {
+        try {
+          container.removeChild(gl.canvas);
+        } catch (error) {
+          console.warn("Failed to remove canvas:", error);
+        }
+      }
+      
+      // Liberar recursos de WebGL
+      if (gl) {
+        const ext = gl.getExtension("WEBGL_lose_context");
+        if (ext) ext.loseContext();
+      }
     };
   }, [hue, hoverIntensity, rotateOnHover, forceHoverState]);
 

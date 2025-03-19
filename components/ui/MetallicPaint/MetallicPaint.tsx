@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import "./MetallicPaint.css";
+import { Return } from "three/src/nodes/TSL.js";
 
 type ShaderParams = {
   patternScale: number;
@@ -384,6 +385,8 @@ export default function MetallicPaint({
   >({});
   const totalAnimationTime = useRef(0);
   const lastRenderTime = useRef(0);
+  const isMounted = useRef<boolean>(true);
+  const animationFrameId = useRef<number | null>(null);
 
   function updateUniforms() {
     if (!gl || !uniforms) return;
@@ -396,6 +399,8 @@ export default function MetallicPaint({
   }
 
   useEffect(() => {
+    isMounted.current = true;
+
     function initShader() {
       const canvas = canvasRef.current;
       const gl = canvas?.getContext("webgl2", {
@@ -492,6 +497,10 @@ export default function MetallicPaint({
 
     initShader();
     updateUniforms();
+
+    return () => {
+      isMounted.current = false;
+    }
   }, []);
 
   useEffect(() => {
@@ -506,20 +515,26 @@ export default function MetallicPaint({
     let renderId: number;
 
     function render(currentTime: number) {
+      if (!isMounted.current) return;
+
       const deltaTime = currentTime - lastRenderTime.current;
       lastRenderTime.current = currentTime;
 
       totalAnimationTime.current += deltaTime * params.speed;
       gl!.uniform1f(uniforms.u_time, totalAnimationTime.current);
       gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
-      renderId = requestAnimationFrame(render);
+
+      animationFrameId.current = requestAnimationFrame(render);
     }
 
     lastRenderTime.current = performance.now();
     renderId = requestAnimationFrame(render);
 
     return () => {
-      cancelAnimationFrame(renderId);
+      if (animationFrameId.current !== null) {
+      cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = null;
+      }
     };
   }, [gl, params.speed]);
 
@@ -551,12 +566,15 @@ export default function MetallicPaint({
   useEffect(() => {
     if (!gl || !uniforms) return;
 
-    const existingTexture = gl.getParameter(gl.TEXTURE_BINDING_2D);
-    if (existingTexture) {
-      gl.deleteTexture(existingTexture);
+    let imageTexture: WebGLTexture | null=null;
+
+    try{
+      const existingTexture = gl.getParameter(gl.TEXTURE_BINDING_2D);
+      if (existingTexture) {
+        gl.deleteTexture(existingTexture);
     }
 
-    const imageTexture = gl.createTexture();
+    imageTexture = gl.createTexture();
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, imageTexture);
 
@@ -567,18 +585,18 @@ export default function MetallicPaint({
 
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    try {
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        imageData?.width,
-        imageData?.height,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        imageData?.data
-      );
+
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      imageData?.width,
+      imageData?.height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      imageData?.data
+    );
 
       gl.uniform1i(uniforms.u_image_texture, 0);
     } catch (e) {
@@ -586,11 +604,38 @@ export default function MetallicPaint({
     }
 
     return () => {
-      if (imageTexture) {
-        gl.deleteTexture(imageTexture);
+      // Limpiar texturas
+      if (gl && imageTexture) {
+        try {
+          gl.deleteTexture(imageTexture);
+        } catch (e) {
+          console.warn('Error deleting texture:', e);
+        }
       }
     };
   }, [gl, uniforms, imageData]);
+
+  // Efecto adicional para limpieza completa al desmontar
+  useEffect(() => {
+    return () => {
+      // Cancelar cualquier animación pendiente
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+      
+      // Limpiar contexto WebGL
+      if (gl) {
+        try {
+          const lostContextExt = gl.getExtension("WEBGL_lose_context");
+          if (lostContextExt) {
+            lostContextExt.loseContext();
+          }
+        } catch (e) {
+          console.warn('Error losing WebGL context:', e);
+        }
+      }
+    };
+  }, [gl]);
 
   return <canvas ref={canvasRef} className="paint-container" />;
 }
