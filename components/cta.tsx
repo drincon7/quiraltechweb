@@ -61,7 +61,7 @@ export default function Cta() {
                 <div className="w-24 h-24 bg-gray-800/40 rounded-full animate-pulse"></div>
               ) : imageData ? (
                 <div className="relative w-full h-full overflow-hidden" style={{ aspectRatio: '1/1' }}>
-                  <div className="absolute inset-0 flex items-center justify-center transform scale-110">
+                  <div className="absolute inset-0 flex items-center justify-center transform scale-100">
                     <MetallicPaint 
                       imageData={imageData} 
                       params={{ 
@@ -77,7 +77,7 @@ export default function Cta() {
                 </div>
               ) : (
                 <Image
-                  src="/images/isologo.svg"
+                  src="/images/isologonegro.svg"
                   width={100}
                   height={100}
                   alt="IsoLogo"
