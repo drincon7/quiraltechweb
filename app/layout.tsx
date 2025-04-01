@@ -53,6 +53,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${inter.variable} ${nacelle.variable} bg-black font-inter text-base text-blue-500 antialiased`}
+        suppressHydrationWarning
       >
         <div className="flex min-h-screen flex-col overflow-hidden supports-[overflow:clip]:overflow-clip">
           <Header />

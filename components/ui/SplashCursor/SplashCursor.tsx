@@ -1568,7 +1568,7 @@ export default function SplashCursor({
       document.removeEventListener("touchend", handleTouchEnd as EventListener);
 
       if (gl) {
-        cancelAnimationFrame
+        cancelAnimationFrame;
       }
     };
   }, [
